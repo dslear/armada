@@ -51,6 +51,7 @@ export interface JobsTableFilterProps {
   filterType: FilterType
   matchType: Match
   enumFilterValues?: EnumFilterOption[]
+  enumFilterGroups?: EnumFilterGroup[]
   id: string
   parseError: string | undefined
   onFilterChange: (newFilter: string | string[] | number | undefined) => void
@@ -65,6 +66,7 @@ export const JobsTableFilter = ({
   matchType,
   parseError,
   enumFilterValues,
+  enumFilterGroups,
   onFilterChange,
   onColumnMatchChange,
   onSetTextFieldRef,
@@ -102,6 +104,7 @@ export const JobsTableFilter = ({
       <EnumFilter
         currentFilter={(currentFilter ?? []) as string[]}
         enumFilterValues={enumFilterValues ?? []}
+        groups={enumFilterGroups}
         label={label}
         onFilterChange={onFilterChange}
       />
@@ -147,13 +150,42 @@ export interface EnumFilterOption {
   Icon?: ElementType<SvgIconProps>
   iconColor?: CustomPaletteColorToken
 }
+
+export interface EnumFilterGroup {
+  label: string
+  values: string[]
+}
+
 interface EnumFilterProps {
   currentFilter: string[]
   enumFilterValues: EnumFilterOption[]
   label: string
+  groups?: EnumFilterGroup[]
   onFilterChange: JobsTableFilterProps["onFilterChange"]
 }
-const EnumFilter = ({ currentFilter, enumFilterValues, label, onFilterChange }: EnumFilterProps) => {
+const EnumFilter = ({ currentFilter, enumFilterValues, label, groups, onFilterChange }: EnumFilterProps) => {
+  const handleGroupToggle = (groupValues: string[]) => {
+    const allSelected = groupValues.every((val) => currentFilter.includes(val))
+    let newFilter: string[]
+    if (allSelected) {
+      // Unselect all in group
+      newFilter = currentFilter.filter((val) => !groupValues.includes(val))
+    } else {
+      // Select all in group
+      const newValues = groupValues.filter((val) => !currentFilter.includes(val))
+      newFilter = [...currentFilter, ...newValues]
+    }
+    onFilterChange(newFilter.length === 0 ? undefined : newFilter)
+  }
+
+  const isGroupFullySelected = (groupValues: string[]) => {
+    return groupValues.every((val) => currentFilter.includes(val))
+  }
+
+  const isGroupPartiallySelected = (groupValues: string[]) => {
+    return groupValues.some((val) => currentFilter.includes(val)) && !isGroupFullySelected(groupValues)
+  }
+
   return (
     <Select
       variant="standard"
@@ -190,17 +222,62 @@ const EnumFilter = ({ currentFilter, enumFilterValues, label, onFilterChange }: 
         },
       }}
     >
-      {(enumFilterValues ?? []).map(({ value, displayName, Icon, iconColor }) => (
-        <MenuItem key={value} value={value} dense>
-          <Checkbox checked={currentFilter.indexOf(value) > -1} size="small" sx={{ padding: "3px" }} />
-          <ListItemText primary={displayName} />
-          {Icon && (
-            <ListItemIcon>
-              <Icon fontSize="inherit" color={iconColor ?? "inherit"} />
-            </ListItemIcon>
-          )}
-        </MenuItem>
-      ))}
+      {groups ? (
+        groups.map((group) => [
+          <MenuItem
+            key={`group-${group.label}`}
+            dense
+            sx={{ fontWeight: "bold", backgroundColor: "action.hover", cursor: "pointer"}}
+          >
+            <Checkbox
+              checked={isGroupFullySelected(group.values)}
+              indeterminate={isGroupPartiallySelected(group.values)}
+              size="small"
+              sx={{ padding: "3px", pointerEvents: "auto" }}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                handleGroupToggle(group.values)
+              }}
+            />
+            <ListItemText 
+              primary={group.label} 
+              sx={{ pointerEvents: "auto" }}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                handleGroupToggle(group.values)
+              }}
+            />
+          </MenuItem>,
+          ...enumFilterValues
+            .filter((filterValue) => group.values.includes(filterValue.value))
+            .map(({ value, displayName, Icon, iconColor }) => (
+              <MenuItem key={value} value={value} dense sx={{ pl: 4 }}>
+                <Checkbox checked={currentFilter.indexOf(value) > -1} size="small" sx={{ padding: "3px" }} />
+                <ListItemText primary={displayName} />
+                {Icon && (
+                  <ListItemIcon>
+                    <Icon fontSize="inherit" color={iconColor ?? "inherit"} />
+                  </ListItemIcon>
+                )}
+              </MenuItem>
+            )),
+        ])
+      ) : (
+        // Render items without groups
+        (enumFilterValues ?? []).map(({ value, displayName, Icon, iconColor }) => (
+          <MenuItem key={value} value={value} dense>
+            <Checkbox checked={currentFilter.indexOf(value) > -1} size="small" sx={{ padding: "3px" }} />
+            <ListItemText primary={displayName} />
+            {Icon && (
+              <ListItemIcon>
+                <Icon fontSize="inherit" color={iconColor ?? "inherit"} />
+              </ListItemIcon>
+            )}
+          </MenuItem>
+        ))
+      )}
     </Select>
   )
 }

@@ -789,6 +789,19 @@ describe("JobsTableContainer", () => {
     await userEvent.tab()
   }
 
+  async function toggleEnumFilterGroupOptions(columnDisplayName: string, filterOptions: string[]) {
+    const headerCell = await getHeaderCell(columnDisplayName)
+    const dropdownTrigger = await within(headerCell).findByLabelText("Filter\u2026")
+    await userEvent.click(dropdownTrigger)
+    for (const filterOption of filterOptions) {
+      const optionButton = await screen.findByRole("option", { name: filterOption })
+      await userEvent.click(optionButton)
+    }
+
+    // Ensure the dropdown is closed
+    await userEvent.tab()
+  }
+
   async function toggleSorting(columnDisplayName: string) {
     const headerCell = await getHeaderCell(columnDisplayName)
     const sortButton = await within(headerCell).findByRole("button", { name: "Toggle sort" })

@@ -4,9 +4,9 @@ import { ColumnDef, createColumnHelper, VisibilityState } from "@tanstack/table-
 
 import { JobGroupStateCounts } from "../components/JobGroupStateCounts"
 import { JobStateChip } from "../components/JobStateChip"
-import { EnumFilterOption } from "../components/JobsTableFilter"
+import { EnumFilterOption, EnumFilterGroup } from "../components/JobsTableFilter"
 import { isJobGroupRow, JobTableRow } from "../models/jobsTableModels"
-import { JobState, jobStateColors, jobStateIcons, Match, SortDirection } from "../models/lookoutModels"
+import { JobState, jobStateColors, jobStateIcons, Match, SortDirection, activeJobStates, inactiveJobStates } from "../models/lookoutModels"
 
 import { formatDuration, formatTimestampRelative, TimestampFormat } from "./formatTime"
 import { formatJobState } from "./jobsTableFormatters"
@@ -27,6 +27,7 @@ export interface JobTableColumnMetadata {
 
   filterType?: FilterType
   enumFilterValues?: EnumFilterOption[]
+  enumFilterGroups?: EnumFilterGroup[]
   defaultMatchType?: Match
 
   annotation?: {
@@ -347,6 +348,16 @@ export const GET_JOB_COLUMNS = ({
         Icon: jobStateIcons[state],
         iconColor: jobStateColors[state],
       })),
+      enumFilterGroups: [
+        {
+          label: "Active States",
+          values: [...activeJobStates],
+        },
+        {
+          label: "Inactive States",
+          values: [...inactiveJobStates],
+        },
+      ],
       defaultMatchType: Match.AnyOf,
     },
   }),

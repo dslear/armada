@@ -73,6 +73,23 @@ const terminatedJobStates = new Set([
 ])
 export const isTerminatedJobState = (state: JobState) => terminatedJobStates.has(state)
 
+// Jobs still being processed
+export const activeJobStates = [
+  JobState.Queued,
+  JobState.Leased,
+  JobState.Pending,
+  JobState.Running,
+] as const
+
+// Jobs that are at a terminal state
+export const inactiveJobStates = [
+  JobState.Succeeded,
+  JobState.Failed,
+  JobState.Cancelled,
+  JobState.Preempted,
+  JobState.Rejected,
+] as const
+
 export enum JobRunState {
   RunPending = "RUN_PENDING",
   RunRunning = "RUN_RUNNING",
