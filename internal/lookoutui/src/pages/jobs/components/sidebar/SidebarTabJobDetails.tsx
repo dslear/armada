@@ -22,6 +22,7 @@ export const SidebarTabJobDetails = ({ job }: SidebarTabJobDetailsProps) => {
     ...(job.namespace ? [{ key: "Namespace", value: job.namespace, allowCopy: true }] : []),
     { key: "Priority", value: job.priority.toString() }, // this value is deliberately left unformatted to so it is displayed precisely
     { key: "Run Count", value: formatNumber(job.runs.length) },
+    { key: "Submitted", value: new Date(job.submitted).toLocaleString() },
     ...(job.cancelReason ? [{ key: "Cancel Reason", value: job.cancelReason, allowCopy: true }] : []),
     ...(job.cancelUser ? [{ key: "Cancelled By", value: job.cancelUser, allowCopy: true }] : []),
   ]
