@@ -875,6 +875,7 @@ export const JobsTableContainer = ({
                           groupedColumns={grouping}
                           lastTransitionTimeAggregate={lastTransitionTimeAggregate}
                           onLastTransitionTimeAggregateChange={onLastTransitionTimeAggregateChange}
+                          allRows={table.getRowModel().flatRows.map((row) => row.original)}
                         />
                       ))}
                     </TableRow>

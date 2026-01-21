@@ -5,6 +5,7 @@ import { ColumnDef, createColumnHelper, VisibilityState } from "@tanstack/table-
 import { JobGroupStateCounts } from "../components/JobGroupStateCounts"
 import { JobStateChip } from "../components/JobStateChip"
 import { EnumFilterOption } from "../components/JobsTableFilter"
+import { CopyColumnButton } from "components/CopyColumnButton"
 import { isJobGroupRow, JobTableRow } from "../models/jobsTableModels"
 import { JobState, jobStateColors, jobStateIcons, Match, SortDirection } from "../models/lookoutModels"
 
@@ -28,6 +29,7 @@ export interface JobTableColumnMetadata {
   filterType?: FilterType
   enumFilterValues?: EnumFilterOption[]
   defaultMatchType?: Match
+  columnAccessor?: (item: JobTableRow) => string | number | undefined
 
   annotation?: {
     annotationKey: string
@@ -245,6 +247,7 @@ export const GET_JOB_COLUMNS = ({
       filterType: FilterType.Text,
       defaultMatchType: Match.AnyOf,
       allowCopy: true,
+      columnAccessor: (row) => row.queue,
     },
   }),
   accessorColumn({
@@ -260,6 +263,7 @@ export const GET_JOB_COLUMNS = ({
       filterType: FilterType.Text,
       defaultMatchType: Match.StartsWith,
       allowCopy: true,
+      columnAccessor: (row) => row.namespace,
     },
   }),
   accessorColumn({
@@ -276,6 +280,7 @@ export const GET_JOB_COLUMNS = ({
       filterType: FilterType.Text,
       defaultMatchType: Match.StartsWith,
       allowCopy: true,
+      columnAccessor: (row) => row.jobSet,
     },
   }),
   accessorColumn({
@@ -291,6 +296,7 @@ export const GET_JOB_COLUMNS = ({
       filterType: FilterType.Text,
       defaultMatchType: Match.Exact, // Job ID does not support startsWith
       allowCopy: true,
+      columnAccessor: (row) => row.jobId,
     },
   }),
   accessorColumn({
@@ -348,6 +354,7 @@ export const GET_JOB_COLUMNS = ({
         iconColor: jobStateColors[state],
       })),
       defaultMatchType: Match.AnyOf,
+      columnAccessor: (row) => row.state,
     },
   }),
   accessorColumn({
@@ -365,6 +372,7 @@ export const GET_JOB_COLUMNS = ({
     },
     additionalMetadata: {
       isRightAligned: true,
+      columnAccessor: (row) => isJobGroupRow(row) ? row.jobCount?.toString() : undefined,
     },
   }),
   accessorColumn({
@@ -376,6 +384,7 @@ export const GET_JOB_COLUMNS = ({
     },
     additionalMetadata: {
       filterType: FilterType.Text,
+      columnAccessor: (row) => row.priority?.toString(),
     },
   }),
   accessorColumn({
@@ -389,6 +398,7 @@ export const GET_JOB_COLUMNS = ({
       filterType: FilterType.Text,
       defaultMatchType: Match.StartsWith,
       allowCopy: true,
+      columnAccessor: (row) => row.owner,
     },
   }),
   accessorColumn({
@@ -400,6 +410,7 @@ export const GET_JOB_COLUMNS = ({
     },
     additionalMetadata: {
       filterType: FilterType.Text,
+      columnAccessor: (row) => row.cpu !== undefined ? formatCpu(row.cpu) : undefined,
     },
   }),
   accessorColumn({
@@ -412,6 +423,7 @@ export const GET_JOB_COLUMNS = ({
     },
     additionalMetadata: {
       filterType: FilterType.Text,
+      columnAccessor: (row) => row.memory !== undefined ? formatBytes(row.memory) : undefined,
     },
   }),
   accessorColumn({
@@ -425,6 +437,7 @@ export const GET_JOB_COLUMNS = ({
     },
     additionalMetadata: {
       filterType: FilterType.Text,
+      columnAccessor: (row) => row.ephemeralStorage !== undefined ? formatBytes(row.ephemeralStorage) : undefined,
     },
   }),
   accessorColumn({
@@ -436,6 +449,7 @@ export const GET_JOB_COLUMNS = ({
     },
     additionalMetadata: {
       filterType: FilterType.Text,
+      columnAccessor: (row) => row.gpu?.toString(),
     },
   }),
   accessorColumn({
@@ -448,6 +462,7 @@ export const GET_JOB_COLUMNS = ({
     additionalMetadata: {
       filterType: FilterType.Text,
       allowCopy: true,
+      columnAccessor: (row) => row.priorityClass,
     },
   }),
   accessorColumn({
@@ -479,6 +494,7 @@ export const GET_JOB_COLUMNS = ({
     additionalMetadata: {
       filterType: FilterType.DateTimeRange,
       allowCopy: true,
+      columnAccessor: (row) => row.submitted,
     },
   }),
   accessorColumn({
@@ -501,6 +517,7 @@ export const GET_JOB_COLUMNS = ({
     additionalMetadata: {
       filterType: FilterType.Text,
       allowCopy: true,
+      columnAccessor: (row) => row.node,
     },
   }),
   accessorColumn({
@@ -515,6 +532,7 @@ export const GET_JOB_COLUMNS = ({
     additionalMetadata: {
       filterType: FilterType.Text,
       allowCopy: true,
+      columnAccessor: (row) => row.cluster,
     },
   }),
   accessorColumn({
@@ -523,6 +541,9 @@ export const GET_JOB_COLUMNS = ({
     displayName: STANDARD_COLUMN_DISPLAY_NAMES[StandardColumnId.ExitCode],
     additionalOptions: {
       size: 100,
+    },
+    additionalMetadata: {
+      columnAccessor: (row) => row.exitCode?.toString(),
     },
   }),
   accessorColumn({
@@ -535,6 +556,9 @@ export const GET_JOB_COLUMNS = ({
         cellInfo.cell.row.original.runtimeSeconds !== undefined
           ? formatDuration(cellInfo.cell.row.original.runtimeSeconds)
           : null,
+    },
+    additionalMetadata: {
+      columnAccessor: (row) => row.runtimeSeconds !== undefined ? formatDuration(row.runtimeSeconds) : undefined,
     },
   }),
 ]

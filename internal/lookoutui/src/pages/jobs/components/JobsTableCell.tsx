@@ -17,6 +17,7 @@ import {
 } from "../../../common/jobsTableColumns"
 import { matchForColumn } from "../../../common/jobsTableUtils"
 import { ActionableValueOnHover } from "../../../components/ActionableValueOnHover"
+import { CopyColumnButton } from "../../../components/CopyColumnButton"
 import { JobsTableFilter } from "../../../components/JobsTableFilter"
 import { LastTransitionTimeAggregateSelector } from "../../../components/LastTransitionTimeAggregateSelector"
 import { JobRow, JobTableRow } from "../../../models/jobsTableModels"
@@ -66,6 +67,7 @@ export interface HeaderCellProps {
   groupedColumns: ColumnId[]
   lastTransitionTimeAggregate: AggregateType
   onLastTransitionTimeAggregateChange: (value: AggregateType) => void
+  allRows: JobTableRow[]
 }
 
 export function HeaderCell({
@@ -79,6 +81,7 @@ export function HeaderCell({
   groupedColumns,
   lastTransitionTimeAggregate,
   onLastTransitionTimeAggregateChange,
+  allRows,
 }: HeaderCellProps) {
   const id = toColId(header.id)
   const columnDef = header.column.columnDef
@@ -186,9 +189,21 @@ export function HeaderCell({
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",
                     overflow: "hidden",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
                   }}
                 >
                   {flexRender(columnDef.header, header.getContext())}
+                  {metadata.columnAccessor && (
+                    <CopyColumnButton
+                      data={allRows}
+                      columnAccessor={metadata.columnAccessor}
+                      columnName={metadata.displayName}
+                      size="small"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  )}
                 </div>
               </TableSortLabel>
             </div>
@@ -198,9 +213,21 @@ export function HeaderCell({
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
                 overflow: "hidden",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
               }}
             >
               {flexRender(columnDef.header, header.getContext())}
+              {metadata.columnAccessor && (
+                <CopyColumnButton
+                  data={allRows}
+                  columnAccessor={metadata.columnAccessor}
+                  columnName={metadata.displayName}
+                  size="small"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              )}
             </div>
           )}
 
