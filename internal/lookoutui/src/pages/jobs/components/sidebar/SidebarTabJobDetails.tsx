@@ -2,6 +2,7 @@ import { Alert } from "@mui/material"
 
 import { formatBytes, formatCpu } from "../../../../common/resourceUtils"
 import { useFormatNumberWithUserSettings } from "../../../../components/hooks/formatNumberWithUserSettings"
+import { useFormatIsoTimestampWithUserSettings } from "../../../../components/hooks/formatTimeWithUserSettings"
 import { Job } from "../../../../models/lookoutModels"
 
 import { ContainerDetails } from "./ContainerDetails"
@@ -14,7 +15,8 @@ export interface SidebarTabJobDetailsProps {
 
 export const SidebarTabJobDetails = ({ job }: SidebarTabJobDetailsProps) => {
   const formatNumber = useFormatNumberWithUserSettings()
-
+  const formatIsoTimestamp = useFormatIsoTimestampWithUserSettings()
+  
   const details = [
     { key: "Queue", value: job.queue, allowCopy: true },
     { key: "Job Set", value: job.jobSet, allowCopy: true },
@@ -22,7 +24,7 @@ export const SidebarTabJobDetails = ({ job }: SidebarTabJobDetailsProps) => {
     ...(job.namespace ? [{ key: "Namespace", value: job.namespace, allowCopy: true }] : []),
     { key: "Priority", value: job.priority.toString() }, // this value is deliberately left unformatted to so it is displayed precisely
     { key: "Run Count", value: formatNumber(job.runs.length) },
-    { key: "Submitted", value: new Date(job.submitted).toLocaleString() },
+    { key: "Submitted", value: formatIsoTimestamp(job.submitted, "full") },
     ...(job.cancelReason ? [{ key: "Cancel Reason", value: job.cancelReason, allowCopy: true }] : []),
     ...(job.cancelUser ? [{ key: "Cancelled By", value: job.cancelUser, allowCopy: true }] : []),
   ]
